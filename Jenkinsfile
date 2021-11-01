@@ -6,9 +6,15 @@ pipeline {
         stage('Build app') {
             steps {
                 sh """
-                chmod +x build.sh
-                ./build.sh
+                cd api && go mod download && go mod tidy && go mod verify
                 """
+            }
+        }
+        stage ('Start app') {
+            steps {
+                withEnv(['JENKINS_NODE_COOKIE=dontkill']) {
+                    sh "cd api && nohup go run api.go &"
+                }
             }
         }
     }
